@@ -3,23 +3,24 @@ dependencies: []
 
 galaxy_info:
   role_name: nginx
-  author: geerlingguy, buengese
+  author: buengese
   description: Nginx installation for Linux, FreeBSD and OpenBSD.
   license: "license (BSD, MIT)"
   min_ansible_version: "2.4"
   platforms:
-    - name: EL
+    - name: Fedora
       versions:
-        - "7"
-        - "8"
+        - "37"
+        - "36"
+        - "35"
     - name: Debian
       versions:
         - all
     - name: Ubuntu
       versions:
-        - trusty
-        - xenial
         - focal
+        - bionic
+        - jammy
     - name: ArchLinux
       versions:
         - all
@@ -40,5 +41,3 @@ galaxy_info:
     - nginx
     - reverse
     - proxy
-    - load
-    - balancer
