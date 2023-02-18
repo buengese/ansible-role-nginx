@@ -1,53 +1,129 @@
+#jinja2: lstrip_blocks:"True",trim_blocks:"True"
 {% block server_redirect %}
-{% if item.server_name_redirect is defined %}
+{% if item.value.server_name_redirect is defined %}
 server {
-    listen       {{ item.listen | default('80') }};
+    listen {{ item.value.http_listen | default('80') }};
 {% if nginx_listen_ipv6 %}
-    listen       [::]:{{item.listen | default('80') }};
+    listen [::]:{{item.value.http_listen | default('80') }};
 {% endif %}
-    server_name  {{ item.server_name_redirect }};
-    return       301 $scheme://{{ item.server_name.split(' ')[0] }}$request_uri;
+    server_name  {{ item.value.server_name_redirect }};
+    return       301 $scheme://{{ item.key.split(' ')[0] }}$request_uri;
 }
 {% endif %}
 {% endblock %}
 
 server {
-    {% block server_begin %}{% endblock %}
-
-    {% block server_basic -%}
-    listen {{ item.listen | default('80') }};
+    listen {{ item.http_listen | default('80') }};
 {% if nginx_listen_ipv6 %}
-    listen       [::]:{{item.listen | default('80') }};
+    listen [::]:{{item.http_listen | default('80') }};
 {% endif %}
 
-{% if item.server_name is defined %}
-    server_name {{ item.server_name }};
+    server_name {{ item.key }};
+
+{% if item.value.error_page is defined %}
+    error_page {{ item.value.error_page }};
+{% endif %}
+{% if item.value.access_log is defined %}
+    access_log {{ item.value.access_log }};
+{% endif %}
+{% if item.value.error_log is defined %}
+    error_log {{ item.value.error_log }} error;
 {% endif %}
 
-{% if item.root is defined %}
-    root {{ item.root }};
+{% if item.value.redirect_ssl is defined and item.value.redirect_ssl %}
+    return 301 https://$server_name$request_uri;
+{% else %}
+{% if item.value.upstream is defined %}
+    location / {
+        gzip off;
+        client_max_body_size {{ item.value.client_max_body_size | default(nginx_client_max_body_size) }};
+        proxy_read_timeout {{ item.value.proxy_read_timeout | default('300') }};
+        proxy_set_header Upgrade $http_upgrade;
+{% if item.value.conn_upgrade is not defined or item.value.conn_upgrade %}
+        proxy_set_header Connection "upgrade";
+{% endif %}
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Frame-Options SAMEORIGIN;
+        proxy_pass {{ item.value.upstream_protocol | default('http') }}://{{ item.value.upstream }};
+    }
+{% endif %}
+{% if item.value.root is defined %}
+    root {{ item.value.root }};
+{% endif %}
+{% if item.value.index is defined %}
+    index {{ item.value.index }};
+{% endif %}
+{% if item.value.return is defined %}
+    return {{ item.value.return }};
+{% endif %}
 {% endif %}
 
-    index {{ item.index | default('index.html index.htm') }};
-
-{% if item.error_page is defined %}
-    error_page {{ item.error_page }};
-{% endif %}
-{% if item.access_log is defined %}
-    access_log {{ item.access_log }};
-{% endif %}
-{% if item.error_log is defined %}
-    error_log {{ item.error_log }} error;
-{% endif %}
-
-{% if item.return is defined %}
-    return {{ item.return }};
-{% endif %}
-    {% endblock %}
-
-    {% block server_end %}{% endblock %}
-
-{% if item.extra_parameters is defined %}
-    {{ item.extra_parameters|indent(4) }}
+{% if item.value.extra_parameters is defined %}
+    {{ item.value.extra_parameters|indent(4) }}
 {% endif %}
 }
+
+{% if not nginx_tls_stream and item.value.ssl is defined and item.value.ssl %}
+server {
+    listen {{ item.https_listen | default('443') }} ssl http2;
+{% if nginx_listen_ipv6 %}
+    listen       [::]:{{item.https_listen | default('443') }} ssl http2;
+{% endif %}
+
+    server_name {{ item.key }};
+
+    ssl_certificate {{ item.value.ssl_certificate | default('/etc/ssl/certs/ssl-cert-snakeoil.pem') }};
+    ssl_certificate_key {{ item.value.ssl_certificate_key | default ('/etc/ssl/private/ssl-cert-snakeoil.key') }};
+    ssl_session_timeout 5m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+
+{% if item.value.error_page is defined %}
+    error_page {{ item.value.error_page }};
+{% endif %}
+{% if item.value.access_log is defined %}
+    access_log {{ item.value.access_log }};
+{% endif %}
+{% if item.value.error_log is defined %}
+    error_log {{ item.value.error_log }} error;
+{% endif %}
+
+{% if item.value.upstream is defined %}
+    location / {
+        gzip off;
+        proxy_set_header X-Forwarded-Ssl on;
+        client_max_body_size {{ item.value.client_max_body_size | default(nginx_client_max_body_size) }};
+        proxy_read_timeout {{ item.value.proxy_read_timeout | default('300') }};
+        proxy_set_header Upgrade $http_upgrade;
+{% if item.value.conn_upgrade is not defined or item.value.conn_upgrade %}
+        proxy_set_header Connection "upgrade";
+{% endif %}
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Frame-Options SAMEORIGIN;
+        proxy_pass {{ item.value.backend_protocol | default('http') }}://{{ item.value.upstream }};
+    }
+{% endif %}
+
+{% if item.value.root is defined %}
+    root {{ item.value.root }};
+{% endif %}
+{% if item.value.index is defined %}
+    index {{ item.value.index }};
+{% endif %}
+{% if item.value.return is defined %}
+    return {{ item.value.return }};
+{% endif %}
+
+{% if item.value.extra_parameters is defined %}
+    {{ item.value.extra_parameters|indent(4) }}
+{% endif %}
+}
+{% endif %}

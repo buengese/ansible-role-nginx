@@ -1,11 +1,13 @@
+#jinja2: lstrip_blocks:"True",trim_blocks:"True"
 user  {{ nginx_user }};
-
-error_log  {{ nginx_error_log }};
 pid        {{ nginx_pidfile }};
+include /etc/nginx/modules-enabled/*.conf;
 
 {% block worker %}
 worker_processes  {{ nginx_worker_processes }};
 {% endblock %}
+
+error_log  {{ nginx_error_log }};
 
 {% if nginx_extra_conf_options %}
 {{ nginx_extra_conf_options }}
@@ -46,29 +48,10 @@ http {
 {% endif %}
 {% endblock %}
 
-{% block http_gzip %}
-    # gzip on;
-{% endblock %}
-
 {% if nginx_extra_http_options %}
     {{ nginx_extra_http_options|indent(4, False) }}
 {% endif %}
 
-{% block http_upstream %}
-{% for upstream in nginx_upstreams %}
-    upstream {{ upstream.name }} {
-{% if upstream.strategy is defined %}
-        {{ upstream.strategy }};
-{% endif %}
-{% for server in upstream.servers %}
-        server {{ server }};
-{% endfor %}
-{% if upstream.keepalive is defined %}
-        keepalive {{ upstream.keepalive }};
-{% endif %}
-    }
-{% endfor %}
-{% endblock %}
 
 {% block http_includes %}
     include {{ nginx_conf_path }}/*.conf;
@@ -79,3 +62,31 @@ http {
 
     {% block http_end %}{% endblock %}
 }
+
+{% if nginx_tls_stream %}
+stream {
+    {% block stream_begin %}{% endblock %}
+
+    map $ssl_preread_server_name $backend {
+        {% for key, value in nginx_vhosts.items() %}
+        {% if value.ssl and value.tls_upstream is defined %}
+        {{ key }} {{ value.tls_upstream }};
+        {% endif %}
+        {% endfor %}
+    }
+
+    server {
+        listen 443;
+
+        proxy_connect_timeout 1s;
+        proxy_timeout 60s;
+
+        ssl_preread on;
+        {% if nginx_proxy_protocol %}
+        proxy_protocol on;
+        {% endif %}
+        proxy_pass $backend;
+    }
+    {% block stream_end %}{% endblock %}
+}
+{% endif %}

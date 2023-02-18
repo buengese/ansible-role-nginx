@@ -61,7 +61,29 @@ nginx_remove_default_vhost: false
 # Listen on IPv6 (default: true)
 nginx_listen_ipv6: true
 
-nginx_vhosts: []
+# Use the stream backend for tls proxying without termination.
+# This will disable normal TLS.
+# tls_upstream must be used instead of normal upstream
+nginx_tls_stream: false
+# Enable the proxy protocol for the stream backend
+nginx_proxy_protocol: false
+
+# Example vhost below, showing all available options:
+nginx_vhosts:
+  vault.bngs.io:
+    http_listen: "80"
+    name_redirect: "www.vault.bngs.io"
+    root: "/var/www/vault.bngs.io"
+    index: "index.html index.htm"
+    filename: "vault.bngs.io.conf"
+    error_page: ""
+    access_log: ""
+    error_log: ""
+    extra_parameters: ""
+    template: ""
+    state: "present"
+
+
 # Example vhost below, showing all available options:
 # - listen: "80" # default: "80"
 #   server_name: "example.com" # default: N/A
@@ -77,15 +99,6 @@ nginx_vhosts: []
 #   extra_parameters: "" # Can be used to add extra config blocks (multiline).
 #   template: "" # Can be used to override the `nginx_vhost_template` per host.
 #   state: "absent" # To remove the vhost configuration.
-
-nginx_upstreams: []
-# - name: myapp1
-#   strategy: "ip_hash" # "least_conn", etc.
-#   keepalive: 16 # optional
-#   servers:
-#     - "srv1.example.com"
-#     - "srv2.example.com weight=3"
-#     - "srv3.example.com"
 
 nginx_log_format: |-
   '$remote_addr - $remote_user [$time_local] "$request" '
