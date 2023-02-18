@@ -1,4 +1,15 @@
 ---
+# code: language=ansible
+- name: Update apt cache
+  become: true
+  ansible.builtin.apt:
+    cache_valid_time: 3600
+    update_cache: true
+  register: _pre_update_apt_cache
+  until: _pre_update_apt_cache is succeeded
+  when:
+    - ansible_pkg_mgr == "apt"
+
 - name: Ensure dirmngr is installed (gnupg dependency).
   ansible.builtin.apt:
     name: dirmngr

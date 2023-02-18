@@ -1,4 +1,5 @@
 ---
+# code: language=ansible
 - name: Ensure nginx is installed.
   community.general.pacman:
     name: "{{ nginx_package_name }}"

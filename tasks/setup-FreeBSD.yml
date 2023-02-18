@@ -1,4 +1,5 @@
 ---
+# code: language=ansible
 - name: Update pkg cache.
   ansible.builtin.command: pkg update -f
   environment:

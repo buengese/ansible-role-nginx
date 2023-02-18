@@ -1,4 +1,5 @@
 ---
+# code: language=ansible
 - name: Enable nginx repo.
   ansible.builtin.template:
     src: nginx.repo.j2

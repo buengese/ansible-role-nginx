@@ -1,4 +1,5 @@
 ---
+# code: language=ansible
 - name: Ensure nginx is installed.
   community.general.openbsd_pkg:
     name: "{{ nginx_package_name }}"
