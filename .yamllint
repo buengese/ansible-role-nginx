@@ -1,11 +1,22 @@
 ---
+# Based on ansible-lint config
 extends: default
 
 rules:
-  line-length:
-    max: 120
-    level: warning
+  braces:
+    max-spaces-inside: 1
+    level: error
+  brackets:
+    max-spaces-inside: 1
+    level: error
+  empty-lines:
+    max: 3
+    level: error
+  key-duplicates: enable
+  line-length: disable
+  new-lines:
+    type: unix
 
 ignore: |
-  .github/stale.yml
-  .travis.yml
+  .github/
+  molecule/
