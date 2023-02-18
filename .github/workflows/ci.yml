@@ -34,10 +34,10 @@ jobs:
     strategy:
       matrix:
         distro:
-          - ubuntu2004
+          - ubuntu2204
           - debian10
           - debian11
-          - fedora35
+          - fedora37
 
     steps:
       - name: Check out the codebase.
