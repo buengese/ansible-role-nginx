@@ -6,7 +6,8 @@
     nginx_use_ppa: true
     nginx_remove_default_vhost: true
     nginx_vhosts:
-      - server_name: "test.dev"
+      test.dev:
+        http_listen: 80
         root: "/var/www/test"
 
   pre_tasks:
@@ -16,4 +17,4 @@
       changed_when: false
 
   roles:
-    - role: ansible-role-nginx
+    - role: nginx
