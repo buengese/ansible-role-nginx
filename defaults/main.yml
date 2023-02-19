@@ -68,37 +68,37 @@ nginx_tls_stream: false
 # Enable the proxy protocol for the stream backend
 nginx_proxy_protocol: false
 
-# Example vhost below, showing all available options:
-nginx_vhosts:
-  vault.bngs.io:
-    http_listen: "80"
-    name_redirect: "www.vault.bngs.io"
-    root: "/var/www/vault.bngs.io"
-    index: "index.html index.htm"
-    filename: "vault.bngs.io.conf"
-    error_page: ""
-    access_log: ""
-    error_log: ""
-    extra_parameters: ""
-    template: ""
-    state: "present"
-
-
-# Example vhost below, showing all available options:
-# - listen: "80" # default: "80"
-#   server_name: "example.com" # default: N/A
-#   root: "/var/www/example.com" # default: N/A
-#   index: "index.html index.htm" # default: "index.html index.htm"
-#   filename: "example.com.conf" # Can be used to set the vhost filename.
-#
-#   # Properties that are only added if defined:
-#   server_name_redirect: "www.example.com" # default: N/A
-#   error_page: ""
-#   access_log: ""
-#   error_log: ""
-#   extra_parameters: "" # Can be used to add extra config blocks (multiline).
-#   template: "" # Can be used to override the `nginx_vhost_template` per host.
-#   state: "absent" # To remove the vhost configuration.
+# A few configuration examples are provided below.
+nginx_vhosts: {}
+#   test.dev:
+#     http_listen: 80
+#     https_listen: 443
+#     ssl: true
+#     redirect_ssl: true
+#     ssl_certificate: "/etc/ssl/certs/test.dev.crt"
+#     ssl_certificate_key: "/etc/ssl/private/test.dev.key"
+#     upstream: 10.32.10.10
+#     upstream_porotocol: http
+#     client_max_body_size: 500M
+#   service.test.dev:
+#     http_listen: "80"
+#     https_listen: "443"
+#     ssl: true
+#     name_redirect: "www.service.test.dev"
+#     root: "/var/www/service.test.dev"
+#     index: "index.html index.htm"
+#     filename: "service.test.dev.conf"
+#     error_page: ""
+#     access_log: ""
+#     error_log: ""
+#     extra_parameters: ""
+# nginx_vhosts:
+#   test.dev:
+#     http_listen: 80
+#     https_listen: 443
+#     ssl: true
+#     redirect_ssl: true
+#     tls_upstream: 10.32.10.10
 
 nginx_log_format: |-
   '$remote_addr - $remote_user [$time_local] "$request" '
