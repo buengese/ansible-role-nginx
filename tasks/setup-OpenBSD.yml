@@ -9,4 +9,4 @@
   ansible.builtin.file:
     path: /var/log/nginx
     state: directory
-    mode: 0755
+    mode: "0755"
