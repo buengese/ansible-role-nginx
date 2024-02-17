@@ -10,9 +10,6 @@ platforms:
     cgroupns_mode: host
     privileged: true
     pre_build_image: true
-dependency:
-  enabled: true
-  name: galaxy
 lint: |
   set -e
   yamllint .
@@ -20,5 +17,7 @@ lint: |
 provisioner:
   name: ansible
   playbooks:
-    prepare: prepare.yml
     converge: converge.yml
+    verify: verify.yml
+verifier:
+  name: ansible

@@ -1,0 +1,22 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Gather the service facts
+      ansible.builtin.service_facts:
+
+    - name: Check if nginx service is running
+      ansible.builtin.fail:
+        msg: "nginx service is not running"
+      when: "'nginx.service' not in ansible_facts.services or ansible_facts.services['nginx.service'].state != 'running'"
+
+    - name: Check port 80
+      ansible.builtin.wait_for:
+        port: 80
