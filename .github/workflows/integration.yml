@@ -2,6 +2,7 @@
 name: Integration
 on:
   push:
+  workflow_dispatch:
   schedule:
     # * is a special character in YAML so you have to quote this string
     # first of each month
@@ -17,7 +18,7 @@ jobs:
           - debian12
           - debian11
           - ubuntu2204
-          - fedora39
+          - fedora40
           - rockylinux9
 
     steps:
